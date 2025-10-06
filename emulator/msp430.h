@@ -57,7 +57,6 @@
 extern uint8_t RTCHOUR, RTCMIN, RTCSEC, RTCAHOUR, RTCAMIN, RTCDOW;
 extern uint16_t RTCYEAR;
 extern uint8_t RTCMON, RTCDAY;
-#define RTCAE    0x80
 
 /* Watchdog */
 sfr_w(WDTCTL);
