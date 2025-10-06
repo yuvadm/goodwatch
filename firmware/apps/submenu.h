@@ -4,7 +4,7 @@
 
 
 //! Draw the submenu selection.
-void submenu_draw();
+void submenu_draw(int forced);
 
 //! Change the selected applet.
 int submenu_keypress(char c);

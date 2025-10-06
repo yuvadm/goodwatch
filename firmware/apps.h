@@ -62,7 +62,7 @@ void app_forcehome();
 //! Provide an incoming packet.
 void app_packetrx(uint8_t *packet, int len);
 //! Callback after a packet has been sent.
-void app_packettx();
+void app_packettx(uint8_t *packet, int len);
 
 //! Handles a keypress, if a handler is registered.
 void app_keypress(char ch);

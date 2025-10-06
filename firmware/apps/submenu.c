@@ -24,7 +24,7 @@ static void redraw(){
 }
 
 //! Draw the submenu selection.
-void submenu_draw(){
+void submenu_draw(int forced){
   static unsigned int lastindex=0;
 
   //Redraw only when the index changes.

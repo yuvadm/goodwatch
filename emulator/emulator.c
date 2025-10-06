@@ -50,20 +50,11 @@ extern int fflush(FILE *stream);
 extern FILE *stdout;
 
 /* Declare firmware functions we need */
-extern void rtc_init(void);
 extern void rtc_update(void);
+extern int emulator_main(void);
 
-/* Draw the display */
-void draw_display(void) {
-    /* Update RTC from system time */
-    rtc_update();
-
-    /* Draw the clock */
-    clock_draw(1);
-}
-
-/* Render display */
-void render_display(void) {
+/* Render display to terminal */
+void emulator_render_display(void) {
     int digit_segs[8] = {0};
 
     /* Decode LCD memory using firmware lcdmap */
@@ -125,20 +116,7 @@ void render_display(void) {
     printf("╚════════════════════════════════════════════════════╝\n");
 }
 
+/* Entry point - call emulator main which wraps firmware main */
 int main(void) {
-    /* Initialize RTC from system time */
-    rtc_init();
-
-    /* Initialize clock app */
-    clock_init();
-
-    /* Main loop: update display every second */
-    while (1) {
-        draw_display();
-        render_display();
-        fflush(stdout);
-        sleep(1);
-    }
-
-    return 0;
+    return emulator_main();
 }

@@ -17,11 +17,14 @@
 
 #include <stdint.h>
 
-/* Stub out MSP430-specific compiler attributes */
-#define __attribute__(x)
+/* __bis_SR_register enters low power mode - in emulator, we return to emulator_main */
+void emulator_exit_to_main(void) __attribute__((noreturn));
+
+/* Stub out MSP430-specific compiler attributes AFTER using real __attribute__ above */
 #define __interrupt(x)
-#define __bis_SR_register(x)
+#define __bis_SR_register(x) emulator_exit_to_main()
 #define __bic_SR_register_on_exit(x)
+#define __attribute__(x)
 
 /* SFR macros for memory-mapped registers */
 #define sfrb(name, addr) extern volatile uint8_t name
@@ -65,10 +68,12 @@ sfr_w(WDTCTL);
 
 /* LCD_B */
 sfr_w(LCDBCTL0);
+sfr_w(LCDBCTL1);
 sfr_w(LCDBMEMCTL);
 sfr_w(LCDBVCTL);
 sfr_w(LCDBPCTL0);
 sfr_w(LCDBPCTL1);
+sfr_w(LCDBIV);
 
 #define LCDON (0x01)
 #define LCDSON (0x04)
@@ -94,6 +99,32 @@ sfr_w(LCDBPCTL1);
 #define LCDCPEN (0x08)
 
 #define LCDM1 (*(volatile unsigned char*)0x0A20)
+#define LCDNOCAPIFG (0x0010)
+
+/* Unified Clock System */
+sfr_w(UCSCTL7);
+
+/* Power Management Module */
+sfr_w(PMMCTL0);
+#define PMMPW      0xA500
+#define PMMSWPOR   0x0004
+
+/* Port J */
+sfr_b(PJDIR);
+sfr_b(PJOUT);
+
+/* System Flags */
+sfr_w(SFRIE1);
+#define WDTIE      (0x0001)
+
+/* Watchdog Timer */
+#define WDT_ADLY_250  (WDTPW+WDTTMSEL+WDTCNTCL+WDTSSEL)
+#define WDTTMSEL   (0x0010)
+#define WDTCNTCL   (0x0008)
+#define WDTSSEL    (0x0004)
+
+/* Radio */
+sfr_w(RF1AIFERR);
 
 #endif /* EMULATOR_BUILD */
 
