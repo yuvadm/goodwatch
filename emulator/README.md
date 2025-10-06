@@ -68,13 +68,12 @@ volatile unsigned char *lcdm = lcd_mem;  // Pointer firmware expects
 
 ## Files
 
-- `emulator.c` - Main emulator harness and display rendering
-- `firmware_stubs.c` - Stubs for firmware APIs (lcd_init, rtc_init, etc.)
-- `msp430_stubs.h` - MSP430 hardware register definitions
-- `msp430.h` - Conditional MSP430 header inclusion
-- `cc430f6147.h` - Reference TI toolchain header (for register definitions)
-- `Makefile` - Build configuration with EMULATOR_BUILD define
-- `config.h`, `githash.h` - Stub configuration files
+- **`emulator.c`** - Main emulator harness and display rendering
+- **`firmware_stubs.c`** - Stubs for firmware APIs (lcd_init, rtc_init, etc.)
+- **`msp430.h`** - MSP430 hardware stubs (registers, macros, compiler attributes)
+- **`Makefile`** - Build configuration with EMULATOR_BUILD define
+- **`config.h`**, **`githash.h`** - Stub configuration files
+- **`cc430f6147.h`** - Reference TI toolchain header (used during development)
 
 ## Build Process
 

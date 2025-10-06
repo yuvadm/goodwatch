@@ -126,21 +126,13 @@ void render_display(void) {
 }
 
 int main(void) {
-    printf("Starting emulator with firmware integration...\n");
-    fflush(stdout);
-    sleep(1);
-
-    printf("Calling rtc_init...\n");
-    fflush(stdout);
+    /* Initialize RTC from system time */
     rtc_init();
 
-    printf("Calling clock_init...\n");
-    fflush(stdout);
+    /* Initialize clock app */
     clock_init();
 
-    printf("Entering main loop...\n");
-    fflush(stdout);
-
+    /* Main loop: update display every second */
     while (1) {
         draw_display();
         render_display();
