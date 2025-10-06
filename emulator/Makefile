@@ -2,17 +2,14 @@
 # Compiles the emulator using host GCC with firmware source files
 
 CC = gcc
-CFLAGS = -Wall -Wno-unused-variable -Wno-unused-function -Wno-builtin-declaration-mismatch -g -O0
-INCLUDES = -I. -I../firmware
-DEFINES = -Dmsp430_h_=1 -DEMULATOR_BUILD
+CFLAGS = -Wall -Wno-unused-variable -Wno-unused-function -Wno-builtin-declaration-mismatch -g -O0 -Wno-error
+DEFINES = -DEMULATOR_BUILD
+INCLUDES = -I. -I../firmware -I../firmware/apps
 
 # Firmware source files needed for the emulator
 FIRMWARE_SRC = \
-	../firmware/lcd.c \
-	../firmware/lcdtext.c \
-	../firmware/bcd.c \
-	../firmware/printf.c \
-	../firmware/apps/clock.c
+	../firmware/apps/clock.c \
+	../firmware/bcd.c
 
 # Emulator source files
 EMULATOR_SRC = \
