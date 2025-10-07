@@ -111,7 +111,7 @@ void emulator_render_display(void) {
            (lcd_mem[0] & 0x04) ? "AM" : "  ",
            (lcd_mem[1] & 0x40) ? "PM" : "  ");
     printf("╠════════════════════════════════════════════════════╣\n");
-    printf("║  Using firmware: lcdmap, numfont, lcd_digit()     ║\n");
+    printf("║  Keyboard input: 0-9, +, -, *, /, =, .            ║\n");
     printf("║  Press Ctrl+C to quit                              ║\n");
     printf("╚════════════════════════════════════════════════════╝\n");
 }

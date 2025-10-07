@@ -11,6 +11,9 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <termios.h>
+#include <fcntl.h>
+#include <signal.h>
 
 /* Forward declare stdio functions we need */
 typedef struct _IO_FILE FILE;
@@ -215,12 +218,79 @@ extern const struct app *applet;
 #include <setjmp.h>
 static jmp_buf emulator_jmp;
 
+/* Terminal state for keyboard input */
+static struct termios orig_termios;
+
+/* Forward declaration */
+void emulator_cleanup_terminal(void);
+
+/* Signal handler for clean exit */
+void emulator_signal_handler(int signum) {
+    emulator_cleanup_terminal();
+    printf("\nEmulator exiting...\n");
+    exit(0);
+}
+
+/* Set terminal to raw mode for non-blocking input */
+void emulator_setup_terminal(void) {
+    struct termios raw;
+
+    tcgetattr(STDIN_FILENO, &orig_termios);
+    raw = orig_termios;
+
+    /* Set to raw mode - disable canonical mode and echo */
+    raw.c_lflag &= ~(ICANON | ECHO);
+    raw.c_cc[VMIN] = 0;   /* Non-blocking read */
+    raw.c_cc[VTIME] = 0;  /* No timeout */
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &raw);
+
+    /* Set stdin to non-blocking */
+    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+
+    /* Set up signal handler for clean exit */
+    signal(SIGINT, emulator_signal_handler);
+}
+
+/* Restore terminal to original state */
+void emulator_cleanup_terminal(void) {
+    tcsetattr(STDIN_FILENO, TCSANOW, &orig_termios);
+}
+
+/* Handle keyboard input - supports calculator buttons */
+void emulator_handle_input(void) {
+    char ch;
+    ssize_t n = read(STDIN_FILENO, &ch, 1);
+
+    if (n <= 0) {
+        return;  /* No input available */
+    }
+
+    /* Check if it's a valid calculator button */
+    /* Valid keys: 0-9, +, -, *, /, =, . */
+    if ((ch >= '0' && ch <= '9') ||  /* Digits 0-9 */
+        ch == '+' || ch == '-' ||     /* Plus, minus */
+        ch == '*' || ch == '/' ||     /* Multiply, divide */
+        ch == '=' || ch == '.') {     /* Equals, period */
+
+        printf("DEBUG: Key pressed: '%c'\n", ch);
+        fflush(stdout);
+
+        /* Call the firmware's keypress handler */
+        app_keypress(ch);
+    }
+}
+
 /* Called by __bis_SR_register macro to exit firmware_main and return here */
 void emulator_exit_to_main(void) {
     longjmp(emulator_jmp, 1);
 }
 
 int emulator_main(void) {
+    /* Set up terminal for keyboard input */
+    emulator_setup_terminal();
+
     /* Set up jump point for when firmware enters low power mode */
     if (setjmp(emulator_jmp) == 0) {
         /* First time - call firmware's main - it will initialize everything */
@@ -233,6 +303,9 @@ int emulator_main(void) {
     printf("Firmware initialized, entering emulation loop...\n");
 
     while (1) {
+        /* Handle keyboard input */
+        emulator_handle_input();
+
         /* Update RTC from system time */
         rtc_update();
 
@@ -247,8 +320,8 @@ int emulator_main(void) {
         emulator_render_display();
         fflush(stdout);
 
-        /* Sleep 1 second (firmware updates 4x/sec but we'll do 1x/sec) */
-        sleep(1);
+        /* Sleep 250ms for more responsive input (4x/sec like firmware) */
+        usleep(250000);
     }
 
     return 0;
